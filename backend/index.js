@@ -17,6 +17,10 @@ app.post('/register', async (req, res) => {
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
+        // check if user already exists
+        if (users.find((user) => user.username === username)) {
+            return res.status(400).send("User already exists");
+        }
         users.push({ username, hashedPassword });
         res.status(201).send("User registered successfully");
     } catch (e) {
