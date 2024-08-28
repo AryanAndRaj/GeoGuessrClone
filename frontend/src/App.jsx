@@ -1,8 +1,17 @@
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import Landing from "./pages/landing";
+import Game from "./pages/game";
+
 function App() {
   return (
-    <div>
-      <h1>React App</h1>
-    </div>
+    <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/game" element={<Game />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
