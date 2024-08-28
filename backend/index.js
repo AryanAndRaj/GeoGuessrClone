@@ -10,15 +10,13 @@ const {
   addDoc,
   query,
   where,
-  getDoc,
-  doc,
-} = require("firebase/firestore");
+} = require("@google-cloud/firestore");
 
 app.use(cors());
 app.use(express.json());
 
 // Firestore collection reference
-const usersRef = collection(db, "Users");
+const usersRef = db.collection("Users"); // Correct usage of Firestore instance
 
 app.post("/register", async (req, res) => {
   const {username, password} = req.body;
@@ -29,8 +27,8 @@ app.post("/register", async (req, res) => {
 
   try {
     // Check if user already exists
-    const userQuery = query(usersRef, where("username", "==", username));
-    const userSnapshot = await getDocs(userQuery);
+    const userQuery = usersRef.where("username", "==", username);
+    const userSnapshot = await userQuery.get();
 
     if (!userSnapshot.empty) {
       return res.status(400).send("User already exists");
@@ -39,7 +37,7 @@ app.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Add user to Firestore
-    await addDoc(usersRef, {
+    await usersRef.add({
       username: username,
       hashedPassword: hashedPassword,
     });
@@ -60,8 +58,8 @@ app.post("/login", async (req, res) => {
 
   try {
     // Check if user exists
-    const userQuery = query(usersRef, where("username", "==", username));
-    const userSnapshot = await getDocs(userQuery);
+    const userQuery = usersRef.where("username", "==", username);
+    const userSnapshot = await userQuery.get();
 
     if (userSnapshot.empty) {
       return res.status(400).send("Cannot find user");
