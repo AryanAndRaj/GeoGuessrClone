@@ -3,20 +3,10 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 5000;
 const bcrypt = require("bcrypt");
-const {db} = require("./firebase"); // Import Firestore instance
-const {
-  collection,
-  getDocs,
-  addDoc,
-  query,
-  where,
-} = require("@google-cloud/firestore");
+const db = require("./firebase");
 
 app.use(cors());
 app.use(express.json());
-
-// Firestore collection reference
-const usersRef = db.collection("Users"); // Correct usage of Firestore instance
 
 app.post("/register", async (req, res) => {
   const {username, password} = req.body;
@@ -27,19 +17,18 @@ app.post("/register", async (req, res) => {
 
   try {
     // Check if user already exists
-    const userQuery = usersRef.where("username", "==", username);
-    const userSnapshot = await userQuery.get();
+    const userRef = db.collection('Users').doc(username);
+    const userDoc = await userRef.get();
 
-    if (!userSnapshot.empty) {
-      return res.status(400).send("User already exists");
+    if (userDoc.exists) {
+        return res.status(400).send("User already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Add user to Firestore
-    await usersRef.add({
-      username: username,
-      hashedPassword: hashedPassword,
+    await userRef.set({
+        username,
+        password: hashedPassword,
     });
 
     res.status(201).send("User registered successfully");
@@ -51,26 +40,22 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const {username, password} = req.body;
-  console.log(req.body);
-  console.log(username);
-  console.log(password);
+
   if (!username || !password) {
     return res.status(400).send("Username and password required");
   }
 
   try {
-    // Check if user exists
-    const userQuery = usersRef.where("username", "==", username);
-    const userSnapshot = await userQuery.get();
+    const userRef = db.collection("Users").doc(username);
+    const userDoc = await userRef.get();
 
-    if (userSnapshot.empty) {
-      return res.status(400).send("Cannot find user");
+    if (!userDoc.exists) {
+        return res.status(400).send("User not found");
     }
 
-    const userDoc = userSnapshot.docs[0];
-    const user = userDoc.data();
+    const user  = userDoc.data();
+    const validPassword = await bcrypt.compare(password, user.password);
 
-    const validPassword = await bcrypt.compare(password, user.hashedPassword);
     if (!validPassword) {
       return res.status(400).send("Invalid password");
     }

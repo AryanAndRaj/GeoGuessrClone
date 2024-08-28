@@ -1,9 +1,10 @@
-const {Firestore} = require("@google-cloud/firestore");
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 
-// Initialize Firestore with service account credentials
-const db = new Firestore({
-  projectId: "geoguessrclone-433920",
-  keyFilename: "./serviceAccountKey.json",
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
 });
 
-module.exports = {db};
+const db = admin.firestore();
+
+module.exports = db;
