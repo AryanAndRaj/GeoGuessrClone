@@ -1,18 +1,15 @@
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
-import Landing from "./pages/Landing";
+import Map from "./pages/Map";
 import Game from "./pages/Game";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-
+import Auth from "./pages/Auth";
 function App() {
   return (
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/map" element={<Map />} />
+          <Route path="/" element={<Auth />} />
           <Route path="/game" element={<Game />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
         </Routes>
       </div>
     </Router>
