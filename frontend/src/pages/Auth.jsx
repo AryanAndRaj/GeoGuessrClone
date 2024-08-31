@@ -59,7 +59,6 @@ AuthForm.propTypes = {
   setConfirmPassword: PropTypes.func,
   handleSubmit: PropTypes.func.isRequired,
   message: PropTypes.string.isRequired,
-  handleGuestNavigate: PropTypes.func.isRequired,
 };
 
 export default function Auth() {
